@@ -1,18 +1,31 @@
-Home
-About
-RSS Feed
-Shaders in Processing 2.0 – Part 2   9 comments
-The new capability of loading user-provided GLSL shaders into Processing’s P2D and P3D renderers opens up the possibility of customizing all the rendering operations in Processing, as well as of creating interactive graphics that would be very hard or impossible to generate otherwise. For OpenGL web applications, WebGL supports (only) programmable pipelines through GLSL shaders, and this has motivated the creation of online repositories of shader effects that can be run directly from inside the web browsers, as long as they support WebGL. Sites like the GLSL sandbox or Shader Toy hold large collections of shader effects that can be edited and controlled interactively through the browser. This new post will explain how to integrate GLSL shaders from the GLSL sandbox and Shader Toy websites into a Processing sketch.
-Update: The shader API changed slightly in the betas, please refer to this post for more information.
-PShader blur;
+/*import processing.video.*;
+Movie clip;
+float xpt = 0, ypt=0;*/
+PShader edges,channel_offset;
+PImage obj;
 
-void setup() {
-  size(400, 400, P2D);
-  blur = loadShader("blur.glsl"); 
+int scale = 7; //factor to scale the image by
+int offs = 10;
+
+void setup(){
+  frameRate(24);
+  background(0);
+  obj = loadImage("cup.jpg");  
+  size(obj.width/scale, obj.height/scale, P2D);
+  obj.resize(obj.width/scale, obj.height/scale);
+  //edges = loadShader("edge-detect.frag.glsl");
+  //load the channel offset fragment shader
+  channel_offset = loadShader("offs.glsl");
 }
 
-void draw() {
-  rect(mouseX, mouseY, 50, 50);    
-  filter(blur);    
+void draw(){
+  channel_offset.set("roff", random(-offs, offs));
+  channel_offset.set("goff", random(-offs, offs));
+  channel_offset.set("boff", random(-offs, offs));
+  shader(channel_offset);  
+  image(obj, 0, 0, width, height); //send textured quad to the GPU (image makes use of beginshape(QUADS)/endshape
 }
 
+/*void movieEvent(Movie m) {
+  m.read();  //read the next frame
+}*/
