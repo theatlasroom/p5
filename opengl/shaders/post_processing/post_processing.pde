@@ -1,7 +1,7 @@
 /*import processing.video.*;
 Movie clip;
 float xpt = 0, ypt=0;*/
-PShader edges,channel_offset;
+PShader edges,channel_offset, grayscale, blur, bloom;
 PImage obj;
 
 int scale = 7; //factor to scale the image by
@@ -16,14 +16,18 @@ void setup(){
   //edges = loadShader("edge-detect.frag.glsl");
   //load the channel offset fragment shader
   channel_offset = loadShader("offs.glsl");
+  grayscale = loadShader("grayscale.glsl");
+  blur = loadShader("blur.glsl");
 }
 
-void draw(){
-  channel_offset.set("roff", random(-offs, offs));
-  channel_offset.set("goff", random(-offs, offs));
-  channel_offset.set("boff", random(-offs, offs));
-  shader(channel_offset);  
-  image(obj, 0, 0, width, height); //send textured quad to the GPU (image makes use of beginshape(QUADS)/endshape
+void draw(){  
+  //channel_offset.set("roff", random(-offs, offs));
+  //channel_offset.set("goff", random(-offs, offs));
+  //channel_offset.set("boff", random(-offs, offs));
+  for (int i=0;i<5;i++){
+    shader(blur);
+    image(obj, 0, 0, width, height); //send textured quad to the GPU (image makes use of beginshape(QUADS)/endshape
+  }
 }
 
 /*void movieEvent(Movie m) {
