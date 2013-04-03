@@ -1,9 +1,4 @@
 //adapted from https://github.com/mattdesl/lwjgl-basics/wiki/ShaderLesson5
-
-//calculate grayscale by using 1/3 of each color component
-//custom variables passed in
-uniform float r_off;
-
 #ifdef GL_ES
 precision mediump float;
 precision mediump int;
@@ -26,20 +21,21 @@ void main(){
 	vec4 col = vec4(0.0);	//initialize the color
 	//calculate how far from the centrepoint to sample
 	//float blur = radius / texOffset;
-	vec2 offsets = radius * texOffset;	//calculate the texel offsets based on the radius of the blur to be used
-	//apply the filter
+	vec2 offsets = radius * texOffset.st;	//calculate the texel offsets based on the radius of the blur to be used
+	//apply the filter to the left
 	col += texture2D(texture, vec2(vertTexCoord.s - 4.0 * offsets.x * dir.x, vertTexCoord.t - 4.0 * offsets.y * dir.y)) * w4;
 	col += texture2D(texture, vec2(vertTexCoord.s - 3.0 * offsets.x * dir.x, vertTexCoord.t - 3.0 * offsets.y * dir.y)) * w3;
 	col += texture2D(texture, vec2(vertTexCoord.s - 2.0 * offsets.x * dir.x, vertTexCoord.t - 2.0 * offsets.y * dir.y)) * w2;
 	col += texture2D(texture, vec2(vertTexCoord.s - 1.0 * offsets.x * dir.x, vertTexCoord.t - 1.0 * offsets.y * dir.y)) * w1;
 
 	//center texel
-	col += texture2D(texture, vec2(vertTexCoord.s, vertTexCoord.t)) * w0;
+	col += texture2D(texture, vertTexCoord.st) * w0;
 
-	col += texture2D(texture, vec2(vertTexCoord.s - 1.0 * offsets.x  * dir.x, vertTexCoord.t - 1.0 * offsets.y * dir.y)) * w1;
-	col += texture2D(texture, vec2(vertTexCoord.s - 2.0 * offsets.x  * dir.x, vertTexCoord.t - 2.0 * offsets.y * dir.y)) * w2;
-	col += texture2D(texture, vec2(vertTexCoord.s - 3.0 * offsets.x  * dir.x, vertTexCoord.t - 3.0 * offsets.y * dir.y)) * w3;
-	col += texture2D(texture, vec2(vertTexCoord.s - 4.0 * offsets.x  * dir.x, vertTexCoord.t - 4.0 * offsets.y * dir.y)) * w4;	
+	//apply the filter to the right
+	col += texture2D(texture, vec2(vertTexCoord.s + 1.0 * offsets.x  * dir.x, vertTexCoord.t + 1.0 * offsets.y * dir.y)) * w1;
+	col += texture2D(texture, vec2(vertTexCoord.s + 2.0 * offsets.x  * dir.x, vertTexCoord.t + 2.0 * offsets.y * dir.y)) * w2;
+	col += texture2D(texture, vec2(vertTexCoord.s + 3.0 * offsets.x  * dir.x, vertTexCoord.t + 3.0 * offsets.y * dir.y)) * w3;
+	col += texture2D(texture, vec2(vertTexCoord.s + 4.0 * offsets.x  * dir.x, vertTexCoord.t + 4.0 * offsets.y * dir.y)) * w4;	
 	//apply the blur to the current fragment
-  	gl_FragColor = vec4(col.rgb, 1.0) * vertColor;
+  	gl_FragColor = vec4(col.rgba) * vertColor;
 }
